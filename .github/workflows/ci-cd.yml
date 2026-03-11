@@ -38,7 +38,7 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Build packages
-        run: mvn --batch-mode -Drevision=${{ env.PACKAGE_VERSION }} package
+        run: mvn --batch-mode "-Drevision=${{ env.PACKAGE_VERSION }}" package
 
       - name: Upload generated NuGet packages
         if: always()
@@ -70,7 +70,7 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Build packages for publishing
-        run: mvn --batch-mode -Drevision=${{ env.PACKAGE_VERSION }} package
+        run: mvn --batch-mode "-Drevision=${{ env.PACKAGE_VERSION }}" package
 
       - name: Publish NuGet packages to GitHub Packages
         shell: pwsh
