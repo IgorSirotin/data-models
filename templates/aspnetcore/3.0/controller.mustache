@@ -1,0 +1,45 @@
+{{>partial_header}}
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using {{modelPackage}};
+
+namespace {{apiPackage}}
+{ {{#operations}}
+    /// <summary>
+    /// {{classname}} controller
+    /// </summary>
+    [ApiController]
+    public {{#classModifier}}{{.}} {{/classModifier}}class {{classname}}Controller : ControllerBase
+    { {{#operation}}
+        /// <summary>
+        /// {{summary}}
+        /// </summary>
+        [{{httpMethod}}]
+        [Route("{{{basePathWithoutHost}}}{{{path}}}")]
+{{#authMethods}}
+{{#isApiKey}}
+        [Authorize(Policy = "{{name}}")]
+{{/isApiKey}}
+{{#isBasicBearer}}
+        [Authorize{{#scopes}}{{#-first}}(Roles = "{{/-first}}{{scope}}{{^-last}},{{/-last}}{{#-last}}"){{/-last}}{{/scopes}}]
+{{/isBasicBearer}}
+{{/authMethods}}
+{{#vendorExtensions.x-aspnetcore-consumes}}        [Consumes({{&vendorExtensions.x-aspnetcore-consumes}})]
+{{/vendorExtensions.x-aspnetcore-consumes}}{{#responses}}{{#dataType}}        [ProducesResponseType(statusCode: {{code}}, type: typeof({{&dataType}}))]
+{{/dataType}}{{/responses}}{{#isDeprecated}}        [Obsolete]
+{{/isDeprecated}}
+        public {{operationModifier}} {{#returnType}}Task<ActionResult<{{{returnType}}}>>{{/returnType}}{{^returnType}}Task<ActionResult>{{/returnType}} {{operationId}}({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}{{^-last}}{{^isCookieParam}}, {{/isCookieParam}}{{/-last}}{{/allParams}}){{^generateBody}};{{/generateBody}}
+        {{#generateBody}}
+        {
+            throw new NotImplementedException();
+        }
+        {{/generateBody}}
+        {{/operation}}
+    }
+{{/operations}}
+}

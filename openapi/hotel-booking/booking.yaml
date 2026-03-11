@@ -1,0 +1,206 @@
+openapi: 3.0.3
+info:
+  title: Booking API
+  description: Операции для работы с бронированиями.
+  version: 1.0.0
+tags:
+  - name: Booking
+    description: Операции для работы с бронированиями номеров.
+paths:
+  /bookings:
+    get:
+      tags:
+        - Booking
+      summary: Получить список бронирований
+      description: Возвращает список бронирований, доступных текущему приложению.
+      operationId: GetBookingsAsync
+      parameters:
+        - name: status
+          in: query
+          description: Необязательный фильтр по статусу бронирования.
+          required: false
+          schema:
+            type: string
+            enum:
+              - pending
+              - confirmed
+              - cancelled
+      responses:
+        "200":
+          description: Список бронирований успешно получен.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Booking"
+    post:
+      tags:
+        - Booking
+      summary: Создать бронирование
+      description: Создает новое бронирование и возвращает созданную сущность.
+      operationId: CreateBookingAsync
+      requestBody:
+        description: Данные для создания бронирования.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBookingRequest"
+      responses:
+        "201":
+          description: Бронирование успешно создано.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+  /bookings/{bookingId}:
+    get:
+      tags:
+        - Booking
+      summary: Получить бронирование по идентификатору
+      description: Возвращает бронирование по его идентификатору.
+      operationId: GetBookingByIdAsync
+      parameters:
+        - name: bookingId
+          in: path
+          description: Идентификатор бронирования.
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        "200":
+          description: Бронирование успешно найдено.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "404":
+          description: Бронирование не найдено.
+    patch:
+      tags:
+        - Booking
+      summary: Изменить статус бронирования
+      description: Изменяет текущий статус бронирования и возвращает обновленную сущность.
+      operationId: UpdateBookingStatusAsync
+      parameters:
+        - name: bookingId
+          in: path
+          description: Идентификатор бронирования.
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Данные для обновления статуса бронирования.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBookingStatusRequest"
+      responses:
+        "200":
+          description: Бронирование успешно обновлено.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Тело запроса содержит некорректные данные.
+        "404":
+          description: Бронирование не найдено.
+components:
+  schemas:
+    Booking:
+      type: object
+      description: Бронирование номера.
+      required:
+        - id
+        - userId
+        - roomId
+        - status
+        - checkIn
+        - checkOut
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор бронирования.
+          example: 10
+        userId:
+          type: integer
+          format: int64
+          description: Идентификатор пользователя, которому принадлежит бронирование.
+          example: 42
+        roomId:
+          type: integer
+          format: int64
+          description: Идентификатор забронированного номера.
+          example: 501
+        status:
+          type: string
+          description: Текущий статус бронирования.
+          enum:
+            - pending
+            - confirmed
+            - cancelled
+          example: confirmed
+        checkIn:
+          type: string
+          format: date
+          description: Дата заезда.
+          example: 2026-04-01
+        checkOut:
+          type: string
+          format: date
+          description: Дата выезда.
+          example: 2026-04-04
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания бронирования в UTC.
+          example: 2026-03-11T10:00:00Z
+    CreateBookingRequest:
+      type: object
+      description: Модель запроса на создание бронирования.
+      required:
+        - userId
+        - roomId
+        - checkIn
+        - checkOut
+      properties:
+        userId:
+          type: integer
+          format: int64
+          description: Идентификатор пользователя, для которого создается бронирование.
+          example: 42
+        roomId:
+          type: integer
+          format: int64
+          description: Идентификатор номера для бронирования.
+          example: 501
+        checkIn:
+          type: string
+          format: date
+          description: Дата заезда.
+          example: 2026-04-01
+        checkOut:
+          type: string
+          format: date
+          description: Дата выезда.
+          example: 2026-04-04
+    UpdateBookingStatusRequest:
+      type: object
+      description: Модель запроса на изменение статуса бронирования.
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: Новый статус бронирования.
+          enum:
+            - pending
+            - confirmed
+            - cancelled

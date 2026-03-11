@@ -1,0 +1,21 @@
+openapi: 3.0.3
+info:
+  title: Hotel Booking API
+  description: Объединенная OpenAPI-спецификация для генерации библиотеки контроллеров.
+  version: 1.0.0
+servers:
+  - url: /
+tags:
+  - name: Users
+    description: Операции для работы с пользователями приложения.
+  - name: Bookings
+    description: Операции для работы с бронированиями номеров.
+paths:
+  /users:
+    $ref: ./user.yaml#/paths/~1users
+  /users/{userId}:
+    $ref: ./user.yaml#/paths/~1users~1{userId}
+  /bookings:
+    $ref: ./booking.yaml#/paths/~1bookings
+  /bookings/{bookingId}:
+    $ref: ./booking.yaml#/paths/~1bookings~1{bookingId}

@@ -1,0 +1,38 @@
+<Project Sdk="{{projectSdk}}">
+    <PropertyGroup>
+        <Description>{{packageDescription}}{{^packageDescription}}{{packageName}}{{/packageDescription}}</Description>
+        <Authors>{{packageAuthors}}</Authors>
+        <TargetFramework>{{targetFramework}}</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <PreserveCompilationContext>true</PreserveCompilationContext>
+        <Version>{{packageVersion}}</Version>
+        <AssemblyName>{{packageName}}</AssemblyName>
+        <PackageId>{{packageName}}</PackageId>
+        <Title>{{packageName}}</Title>
+        <PackageTags>openapi;generator;aspnetcore</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <IncludeSymbols>false</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <IsPackable>true</IsPackable>
+        {{#nullableReferenceTypes}}
+        <Nullable>enable</Nullable>
+        {{/nullableReferenceTypes}}
+        {{#isLibrary}}
+        <OutputType>Library</OutputType>
+        {{/isLibrary}}
+    </PropertyGroup>
+    <ItemGroup>
+        {{#useSeparateModelProject}}
+        <ProjectReference Include="../{{modelPackage}}/{{modelPackage}}.csproj"/>
+        {{/useSeparateModelProject}}
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        {{^useSeparateModelProject}}
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" {{#usePackageVersions}}Version="{{aspnetCoreVersion}}.0" {{/usePackageVersions}}/>
+        {{/useSeparateModelProject}}
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+packages/
+artifacts/
+target/
+
+# IDE
+.idea/
+.vs/
+*.user
+*.suo

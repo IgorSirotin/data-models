@@ -1,0 +1,98 @@
+{{>partial_header}}
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
+{{#useNewtonsoft}}
+using Newtonsoft.Json;
+{{/useNewtonsoft}}
+{{^useNewtonsoft}}
+using System.Text.Json;
+using System.Text.Json.Serialization;
+{{/useNewtonsoft}}
+{{#models}}
+{{#model}}
+{{#discriminator}}
+using JsonSubTypes;
+{{#useSwashbuckle}}
+using Swashbuckle.AspNetCore.Annotations;
+{{/useSwashbuckle}}
+{{/discriminator}}
+{{/model}}
+{{/models}}
+
+{{#models}}
+{{#model}}
+namespace {{modelPackage}}
+{ {{#isEnum}}{{>enumClass}}{{/isEnum}}{{^isEnum}}
+    {{#vars}}
+    {{#isEnum}}
+    {{^complexType}}
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter<{{classname}}{{datatypeWithEnum}}>))]
+    public enum {{classname}}{{datatypeWithEnum}}
+    {
+        {{#allowableValues}}
+        {{#enumVars}}
+        /// <summary>
+        /// {{name}}
+        /// </summary>
+        [EnumMember(Value = "{{value}}")]
+        {{name}}{{^-last}},{{/-last}}
+        {{/enumVars}}
+        {{/allowableValues}}
+    }
+
+    {{/complexType}}
+    {{/isEnum}}
+    {{/vars}}
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+    [DataContract]
+    {{#discriminator}}
+    {{#useNewtonsoft}}
+    {{#mappedModels.size}}
+    [JsonConverter(typeof(JsonSubtypes), "{{{discriminatorName}}}")]
+    {{/mappedModels.size}}
+    {{/useNewtonsoft}}
+    {{#useSwashbuckle}}
+    [SwaggerDiscriminator("{{{discriminatorName}}}")]
+    {{/useSwashbuckle}}
+    {{#mappedModels}}
+    [JsonSubtypes.KnownSubType(typeof({{{modelName}}}), "{{^vendorExtensions.x-discriminator-value}}{{{mappingName}}}{{/vendorExtensions.x-discriminator-value}}{{#vendorExtensions.x-discriminator-value}}{{{.}}}{{/vendorExtensions.x-discriminator-value}}")]
+    {{#useSwashbuckle}}
+    [SwaggerSubType(typeof({{{modelName}}}), DiscriminatorValue =  "{{^vendorExtensions.x-discriminator-value}}{{{mappingName}}}{{/vendorExtensions.x-discriminator-value}}{{#vendorExtensions.x-discriminator-value}}{{{.}}}{{/vendorExtensions.x-discriminator-value}}")]
+    {{/useSwashbuckle}}
+    {{/mappedModels}}
+    {{/discriminator}}
+    public {{#modelClassModifier}}{{.}} {{/modelClassModifier}}class {{classname}}{{#parent}} : {{{.}}}{{/parent}}
+    {
+        {{#vars}}
+        /// <summary>
+        /// {{description}}{{^description}}Gets or Sets {{{name}}}{{/description}}
+        /// </summary>{{#required}}
+        [Required]{{/required}}{{#pattern}}
+        [RegularExpression("{{{.}}}")]{{/pattern}}{{#minLength}}{{#maxLength}}
+        [StringLength({{maxLength}}, MinimumLength={{minLength}})]{{/maxLength}}{{/minLength}}{{#minLength}}{{^maxLength}}
+        [MinLength({{minLength}})]{{/maxLength}}{{/minLength}}{{^minLength}}{{#maxLength}}
+        [MaxLength({{.}})]{{/maxLength}}{{/minLength}}{{#minimum}}{{#maximum}}
+        [Range({{minimum}}, {{maximum}})]{{/maximum}}{{/minimum}}
+        [DataMember(Name="{{baseName}}", EmitDefaultValue={{#isNullable}}true{{/isNullable}}{{^isNullable}}{{#vendorExtensions.x-is-value-type}}true{{/vendorExtensions.x-is-value-type}}{{^vendorExtensions.x-is-value-type}}false{{/vendorExtensions.x-is-value-type}}{{/isNullable}})]
+        {{#isEnum}}
+        public {{classname}}{{{datatypeWithEnum}}}{{#isNullable}}?{{/isNullable}} {{name}} { get; set; }
+        {{/isEnum}}
+        {{^isEnum}}
+        public {{{dataType}}}{{#nullableReferenceTypes}}{{^isContainer}}{{^required}}{{^isNullable}}?{{/isNullable}}{{/required}}{{/isContainer}}{{/nullableReferenceTypes}} {{name}} { get; set; }{{#defaultValue}} = {{{.}}};{{/defaultValue}}
+        {{/isEnum}}
+        {{^-last}}
+
+        {{/-last}}
+        {{/vars}}
+    }
+{{/isEnum}}
+{{/model}}
+{{/models}}
+}

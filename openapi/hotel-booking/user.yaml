@@ -1,0 +1,239 @@
+openapi: 3.0.3
+info:
+  title: User API
+  description: Операции для работы с пользователями сервиса бронирования.
+  version: 1.0.0
+tags:
+  - name: User
+    description: Операции для работы с пользователями приложения.
+paths:
+  /users:
+    get:
+      tags:
+        - User
+      summary: Получить список пользователей
+      description: Возвращает список пользователей, зарегистрированных в системе бронирования.
+      operationId: GetUsersAsync
+      parameters:
+        - name: limit
+          in: query
+          description: Максимальное количество пользователей в ответе.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Список пользователей успешно получен.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      tags:
+        - User
+      summary: Создать пользователя
+      description: Создает нового пользователя и возвращает созданную сущность.
+      operationId: CreateUserAsync
+      requestBody:
+        description: Данные для создания пользователя.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: Пользователь успешно создан.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /users/{userId}:
+    get:
+      tags:
+        - User
+      summary: Получить пользователя по идентификатору
+      description: Возвращает пользователя по его идентификатору.
+      operationId: GetUserByIdAsync
+      parameters:
+        - name: userId
+          in: path
+          description: Идентификатор пользователя.
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        "200":
+          description: Пользователь успешно найден.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Пользователь не найден.
+    put:
+      tags:
+        - User
+      summary: Обновить пользователя
+      description: Обновляет изменяемые поля пользователя и возвращает обновленную сущность.
+      operationId: UpdateUserAsync
+      parameters:
+        - name: userId
+          in: path
+          description: Идентификатор пользователя.
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Данные для обновления пользователя.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: Пользователь успешно обновлен.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Тело запроса содержит некорректные данные.
+        "404":
+          description: Пользователь не найден.
+    delete:
+      tags:
+        - User
+      summary: Удалить пользователя
+      description: Удаляет пользователя по идентификатору.
+      operationId: DeleteUserAsync
+      parameters:
+        - name: userId
+          in: path
+          description: Идентификатор пользователя.
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Пользователь удален.
+        "404":
+          description: Пользователь не найден.
+components:
+  schemas:
+    User:
+      type: object
+      description: Пользователь сервиса бронирования.
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - role
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор пользователя.
+          example: 42
+        firstName:
+          type: string
+          description: Имя пользователя.
+          minLength: 2
+          maxLength: 50
+          example: Alice
+        lastName:
+          type: string
+          description: Фамилия пользователя.
+          minLength: 2
+          maxLength: 50
+          example: Walker
+        email:
+          type: string
+          format: email
+          description: Адрес электронной почты пользователя.
+          example: alice@example.com
+        role:
+          type: string
+          description: Роль пользователя в системе.
+          enum:
+            - admin
+            - customer
+            - manager
+          example: customer
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания пользователя в UTC.
+          example: 2026-03-11T10:00:00Z
+    CreateUserRequest:
+      type: object
+      description: Модель запроса на создание пользователя.
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+      properties:
+        firstName:
+          type: string
+          description: Имя пользователя.
+          minLength: 2
+          maxLength: 50
+          example: Alice
+        lastName:
+          type: string
+          description: Фамилия пользователя.
+          minLength: 2
+          maxLength: 50
+          example: Walker
+        email:
+          type: string
+          format: email
+          description: Адрес электронной почты пользователя.
+          example: alice@example.com
+        password:
+          type: string
+          format: password
+          description: Пароль пользователя в открытом виде.
+          minLength: 8
+          example: Secret123
+        role:
+          type: string
+          description: Роль, которая назначается новому пользователю.
+          enum:
+            - admin
+            - customer
+            - manager
+          default: customer
+    UpdateUserRequest:
+      type: object
+      description: Модель запроса на обновление полей пользователя.
+      properties:
+        firstName:
+          type: string
+          description: Новое имя пользователя.
+          minLength: 2
+          maxLength: 50
+        lastName:
+          type: string
+          description: Новая фамилия пользователя.
+          minLength: 2
+          maxLength: 50
+        role:
+          type: string
+          description: Новая роль пользователя.
+          enum:
+            - admin
+            - customer
+            - manager

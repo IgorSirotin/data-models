@@ -1,0 +1,98 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>data-models-v3</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <revision>0.1.0.0</revision>
+        <openapi.generator.version>7.20.0</openapi.generator.version>
+        <openapi.root>${project.basedir}/openapi</openapi.root>
+        <packages.root>${project.basedir}/packages</packages.root>
+        <nuget.output>${project.basedir}/artifacts/nuget</nuget.output>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-all-packages</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <target>
+                                <exec executable="powershell" failonerror="true">
+                                    <arg value="-ExecutionPolicy" />
+                                    <arg value="Bypass" />
+                                    <arg value="-File" />
+                                    <arg value="${project.basedir}/scripts/Build-Packages.ps1" />
+                                    <arg value="-Mode" />
+                                    <arg value="generate-sources" />
+                                    <arg value="-ProjectRoot" />
+                                    <arg value="${project.basedir}" />
+                                    <arg value="-OpenApiRoot" />
+                                    <arg value="${openapi.root}" />
+                                    <arg value="-PackagesRoot" />
+                                    <arg value="${packages.root}" />
+                                    <arg value="-TemplateDirectory" />
+                                    <arg value="${project.basedir}/templates/aspnetcore/3.0" />
+                                    <arg value="-IgnoreFile" />
+                                    <arg value="${project.basedir}/.openapi-generator-ignore" />
+                                    <arg value="-GeneratorVersion" />
+                                    <arg value="${openapi.generator.version}" />
+                                    <arg value="-PackageVersion" />
+                                    <arg value="${project.version}" />
+                                </exec>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>pack-all-packages</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <exec executable="powershell" failonerror="true">
+                                    <arg value="-ExecutionPolicy" />
+                                    <arg value="Bypass" />
+                                    <arg value="-File" />
+                                    <arg value="${project.basedir}/scripts/Build-Packages.ps1" />
+                                    <arg value="-Mode" />
+                                    <arg value="package" />
+                                    <arg value="-ProjectRoot" />
+                                    <arg value="${project.basedir}" />
+                                    <arg value="-OpenApiRoot" />
+                                    <arg value="${openapi.root}" />
+                                    <arg value="-PackagesRoot" />
+                                    <arg value="${packages.root}" />
+                                    <arg value="-TemplateDirectory" />
+                                    <arg value="${project.basedir}/templates/aspnetcore/3.0" />
+                                    <arg value="-IgnoreFile" />
+                                    <arg value="${project.basedir}/.openapi-generator-ignore" />
+                                    <arg value="-GeneratorVersion" />
+                                    <arg value="${openapi.generator.version}" />
+                                    <arg value="-PackageVersion" />
+                                    <arg value="${project.version}" />
+                                    <arg value="-NugetOutput" />
+                                    <arg value="${nuget.output}" />
+                                </exec>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
